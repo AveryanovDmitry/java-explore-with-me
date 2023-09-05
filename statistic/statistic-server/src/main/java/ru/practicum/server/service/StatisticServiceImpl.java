@@ -9,7 +9,6 @@ import ru.practicum.server.mapper.StatisticMapper;
 import ru.practicum.server.repository.StatisticRepository;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 public class StatisticServiceImpl implements StatisticService {
     private final StatisticRepository repository;
     private final StatisticMapper mapper;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public ResponseHitDto addEndpointHit(RequestHitDto requestHitDto) {
@@ -26,10 +24,8 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public List<ViewStatistic> getStats(String start, String end, List<String> uris, Boolean unique) {
-        return repository.getStatistics(
-                LocalDateTime.parse(start, FORMATTER),
-                LocalDateTime.parse(end, FORMATTER),
+    public List<ViewStatistic> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        return repository.getStatistics(start, end,
                 uris, unique).stream().map(mapper::modelViewHitToDtoViewStatistic).collect(Collectors.toList());
     }
 }

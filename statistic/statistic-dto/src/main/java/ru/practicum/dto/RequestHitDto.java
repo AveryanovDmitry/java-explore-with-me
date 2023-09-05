@@ -1,22 +1,25 @@
 package ru.practicum.dto;
 
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class RequestHitDto {
-    @Pattern(regexp = "w+", message = "invalid app")
     @NotNull(message = "field app can't be null")
+    @Size(max = 255)
     private String app;
-    @Pattern(regexp = "^[//]/w+//d+", message = "invalid uri")
     @NotNull(message = "field uri can't be null")
+    @Size(max = 255)
     private String uri;
-    @Pattern(regexp = "^[d+]/.d+/.d+/.d+", message = "invalid ip")
     @NotNull(message = "field ip can't be null")
+    @Size(max = 255)
     private String ip;
-    private String timestamp;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime timestamp;
 }
