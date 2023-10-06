@@ -19,6 +19,7 @@ public class MainServiceApplication {
         SpringApplication.run(MainServiceApplication.class, args);
     }
 
+
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder.build();
