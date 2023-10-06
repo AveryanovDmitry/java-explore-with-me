@@ -2,8 +2,7 @@ package ru.practicum.server.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.dto.RequestHitDto;
-import ru.practicum.dto.ResponseHitDto;
+import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatistic;
 import ru.practicum.server.mapper.StatisticMapper;
 import ru.practicum.server.repository.StatisticRepository;
@@ -19,7 +18,7 @@ public class StatisticServiceImpl implements StatisticService {
     private final StatisticMapper mapper;
 
     @Override
-    public ResponseHitDto addEndpointHit(RequestHitDto requestHitDto) {
+    public EndpointHitDto addEndpointHit(EndpointHitDto requestHitDto) {
         return mapper.modelHitToResponseDto(repository.save(mapper.requestDtoToModelHit(requestHitDto)));
     }
 

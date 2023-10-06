@@ -5,8 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.RequestHitDto;
-import ru.practicum.dto.ResponseHitDto;
+import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatistic;
 import ru.practicum.server.service.StatisticService;
 
@@ -22,7 +21,7 @@ public class StatisticController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseHitDto addEndpointHit(@RequestBody @Valid RequestHitDto endpointHitDto) {
+    public EndpointHitDto addEndpointHit(@RequestBody @Valid EndpointHitDto endpointHitDto) {
         log.info("получен запрос на добавление в статистику: {}", endpointHitDto);
         return statisticService.addEndpointHit(endpointHitDto);
     }
