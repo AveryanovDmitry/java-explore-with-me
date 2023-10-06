@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 
 import static ru.practicum.main_service.MainServiceApplication.DATE_TIME_FORMAT;
 
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -33,7 +32,7 @@ public class EventFullDto {
     private Location location;
     private Boolean paid;
     private Long participantLimit;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern =DATE_TIME_FORMAT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_FORMAT)
     private LocalDateTime publishedOn;
     private Boolean requestModeration;
     private EventState state;

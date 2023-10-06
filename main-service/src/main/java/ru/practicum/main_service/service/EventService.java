@@ -19,6 +19,7 @@ public interface EventService {
     List<EventShortDto> getEventsWithSort(String text, List<Long> categories, Boolean paid, String rangeStart,
                                          String rangeEnd, Boolean onlyAvailable, String sort,
                                          Integer from, Integer size, HttpServletRequest request);
+
     EventFullDto getEvent(Long id, HttpServletRequest request);
 
     EventFullDto updateEvent(Long eventId, UpdateEventAdminDto updateEventAdminDto);
