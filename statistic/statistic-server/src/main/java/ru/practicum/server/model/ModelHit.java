@@ -1,6 +1,7 @@
 package ru.practicum.server.model;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -23,5 +24,6 @@ public class ModelHit {
     @Column(nullable = false)
     private String ip;
     @Column(nullable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 }
