@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatistic;
+import ru.practicum.server.exception.BadRequestException;
 import ru.practicum.server.mapper.StatisticMapper;
 import ru.practicum.server.repository.StatisticRepository;
 
@@ -24,6 +25,9 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public List<ViewStatistic> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        if (!start.isBefore(end)) {
+            throw new BadRequestException("Date start must be before date end");
+        }
         return repository.getStatistics(start, end,
                 uris, unique).stream().map(mapper::modelViewHitToDtoViewStatistic).collect(Collectors.toList());
     }
