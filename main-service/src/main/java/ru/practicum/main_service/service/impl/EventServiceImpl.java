@@ -362,10 +362,21 @@ public class EventServiceImpl implements EventService {
 
         EndpointHitDto requestDto = new EndpointHitDto();
         requestDto.setTimestamp(now);
-        requestDto.setUri("/events/" + event.getId());
+        requestDto.setUri("/events");
         requestDto.setApp(nameService);
         requestDto.setIp(remoteAddr);
 
+        statisticClient.postStats(requestDto);
+        sendStatForTheEvent(event.getId(), remoteAddr, now, nameService);
+    }
+
+    private void sendStatForTheEvent(Long eventId, String remoteAddr, LocalDateTime now,
+                                     String nameService) {
+        EndpointHitDto requestDto = new EndpointHitDto();
+        requestDto.setTimestamp(now);
+        requestDto.setUri("/events/" + eventId);
+        requestDto.setApp(nameService);
+        requestDto.setIp(remoteAddr);
         statisticClient.postStats(requestDto);
     }
 
@@ -374,6 +385,17 @@ public class EventServiceImpl implements EventService {
         String remoteAddr = request.getRemoteAddr();
         String nameService = "main-service";
 
+        EndpointHitDto requestDto = new EndpointHitDto();
+        requestDto.setTimestamp(now);
+        requestDto.setUri("/events");
+        requestDto.setApp(nameService);
+        requestDto.setIp(remoteAddr);
+        statisticClient.postStats(requestDto);
+        sendStatForEveryEvent(events, remoteAddr, LocalDateTime.now(), nameService);
+    }
+
+    private void sendStatForEveryEvent(List<EventEntity> events, String remoteAddr,
+                                       LocalDateTime now, String nameService) {
         for (EventEntity event : events) {
             EndpointHitDto requestDto = new EndpointHitDto();
             requestDto.setTimestamp(now);
