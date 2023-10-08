@@ -25,7 +25,7 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public List<ViewStatistic> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        if (!start.isBefore(end)) {
+        if (start.isAfter(end)) {
             throw new BadRequestException("Date start must be before date end");
         }
         return repository.getStatistics(start, end,
