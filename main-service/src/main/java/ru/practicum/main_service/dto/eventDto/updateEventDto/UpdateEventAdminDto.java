@@ -10,7 +10,7 @@ import ru.practicum.main_service.model.event.StateActionForAdmin;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UpdateEventAdminDto extends UpdateEventDto{
+public class UpdateEventAdminDto extends UpdateEventDto {
     private StateActionForAdmin stateAction;
 }
 

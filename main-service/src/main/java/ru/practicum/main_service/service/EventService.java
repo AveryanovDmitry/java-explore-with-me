@@ -3,7 +3,6 @@ package ru.practicum.main_service.service;
 import ru.practicum.main_service.dto.eventDto.*;
 import ru.practicum.main_service.dto.eventDto.updateEventDto.UpdateEventAdminDto;
 import ru.practicum.main_service.dto.eventDto.updateEventDto.UpdateEventUserDto;
-import ru.practicum.main_service.model.event.EventEntity;
 import ru.practicum.main_service.model.event.EventState;
 
 import javax.servlet.http.HttpServletRequest;
