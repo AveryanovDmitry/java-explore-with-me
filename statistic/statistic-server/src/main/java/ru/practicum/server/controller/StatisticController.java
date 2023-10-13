@@ -12,6 +12,7 @@ import ru.practicum.server.service.StatisticService;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class StatisticController {
     @GetMapping("/stats")
     public List<ViewStatistic> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-                                        @RequestParam(required = false) List<String> uris,
+                                        @RequestParam(required = false) Set<String> uris,
                                         @RequestParam(defaultValue = "false") Boolean unique) {
         return statisticService.getStats(start, end, uris, unique);
     }

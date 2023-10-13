@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main_service.dto.eventDto.EventFullDto;
 import ru.practicum.main_service.dto.eventDto.EventShortDto;
 import ru.practicum.main_service.dto.eventDto.NewEventDto;
-import ru.practicum.main_service.dto.eventDto.UpdateEventUserDto;
+import ru.practicum.main_service.dto.eventDto.updateEventDto.UpdateEventUserDto;
 import ru.practicum.main_service.dto.requestDto.RequestDto;
 import ru.practicum.main_service.dto.requestDto.RequestStatusUpdateDto;
 import ru.practicum.main_service.dto.requestDto.RequestStatusUpdateResult;
@@ -37,8 +37,8 @@ public class PrivateEventController {
 
     @GetMapping
     public List<EventShortDto> getAllEventsByUser(@PathVariable Long userId,
-                                                  @RequestParam(name = "from", defaultValue = "0", required = false) Integer from,
-                                                  @RequestParam(name = "size", defaultValue = "10", required = false) Integer size) {
+                                                  @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                  @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Получил запрос на получение событий текущего пользователя");
         return eventService.getEventsByCurrentUserID(userId, from, size);
     }

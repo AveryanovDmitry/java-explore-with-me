@@ -46,7 +46,6 @@ create table if not exists events
     request_Moderation boolean default true,
     state              varchar,
     title              varchar,
-    views              bigint,
     constraint PK_EVENT primary key (ID),
     constraint EVENTS_CATEGORIES_ID_FK foreign key (category_id) references categories (ID) on delete cascade,
     constraint EVENTS_LOCATIONS_ID_FK foreign key (location_id) references locations (ID) on delete cascade,

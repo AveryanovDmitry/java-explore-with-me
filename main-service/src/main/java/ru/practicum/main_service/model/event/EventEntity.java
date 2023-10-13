@@ -42,5 +42,4 @@ public class EventEntity {
     @Enumerated(EnumType.STRING)
     private EventState state;
     private String title;
-    private long views;
 }

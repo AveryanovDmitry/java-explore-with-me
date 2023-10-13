@@ -1,6 +1,8 @@
 package ru.practicum.main_service.service;
 
 import ru.practicum.main_service.dto.eventDto.*;
+import ru.practicum.main_service.dto.eventDto.updateEventDto.UpdateEventAdminDto;
+import ru.practicum.main_service.dto.eventDto.updateEventDto.UpdateEventUserDto;
 import ru.practicum.main_service.model.event.EventEntity;
 import ru.practicum.main_service.model.event.EventState;
 
@@ -26,6 +28,4 @@ public interface EventService {
 
     List<EventFullDto> getEventsWithParamsByAdmin(List<Long> users, List<EventState> states, List<Long> categoriesId,
                                                   String rangeStart, String rangeEnd, Integer from, Integer size);
-
-    void setView(List<EventEntity> events);
 }

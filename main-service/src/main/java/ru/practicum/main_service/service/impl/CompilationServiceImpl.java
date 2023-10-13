@@ -21,7 +21,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +49,6 @@ public class CompilationServiceImpl implements CompilationService {
             compilation.setTitle(newCompilationDto.getTitle());
             Compilation savedCompilation = compilationRepository.save(compilation);
             log.debug("Compilation is created");
-            setView(savedCompilation);
             return mapper.mapToCompilationDto(savedCompilation);
         } else {
             Compilation compilation = new Compilation();
@@ -101,7 +99,7 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation oldCompilation = compilationRepository
                 .findById(compId)
                 .orElseThrow(() -> new NotFoundException("Can't update compilation - the compilation doesn't exist"));
-        List<Long> eventsIds = updateCompilationRequest.getEvents();
+        Set<Long> eventsIds = updateCompilationRequest.getEvents();
         if (eventsIds != null) {
             List<EventEntity> events = eventRepository.findAllByIdIn(updateCompilationRequest.getEvents());
             oldCompilation.setEvents(new HashSet<>(events));
@@ -114,7 +112,6 @@ public class CompilationServiceImpl implements CompilationService {
         }
         Compilation updatedCompilation = compilationRepository.save(oldCompilation);
         log.debug("Compilation with ID = {} is updated", compId);
-        setView(updatedCompilation);
         return mapper.mapToCompilationDto(updatedCompilation);
     }
 
@@ -122,13 +119,5 @@ public class CompilationServiceImpl implements CompilationService {
     public void deleteCompilation(Long compId) {
         compilationRepository.deleteById(compId);
         log.debug("Compilation with ID = {} is deleted", compId);
-    }
-
-    private void setView(Compilation compilation) {
-        Set<EventEntity> setEvents = compilation.getEvents();
-        if (!setEvents.isEmpty()) {
-            List<EventEntity> events = new ArrayList<>(setEvents);
-            eventService.setView(events);
-        }
     }
 }

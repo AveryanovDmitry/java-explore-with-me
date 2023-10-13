@@ -2,10 +2,9 @@ package ru.practicum.main_service.controller.adminController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main_service.dto.eventDto.EventFullDto;
-import ru.practicum.main_service.dto.eventDto.UpdateEventAdminDto;
+import ru.practicum.main_service.dto.eventDto.updateEventDto.UpdateEventAdminDto;
 import ru.practicum.main_service.model.event.EventState;
 import ru.practicum.main_service.service.EventService;
 
@@ -15,7 +14,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/events")
 @RequiredArgsConstructor
-@Validated
 @Slf4j
 public class AdminEventController {
     private final EventService eventService;
@@ -33,8 +31,8 @@ public class AdminEventController {
                                         @RequestParam(name = "categories", required = false) List<Long> categoriesId,
                                         @RequestParam(name = "rangeStart", required = false) String rangeStart,
                                         @RequestParam(name = "rangeEnd", required = false) String rangeEnd,
-                                        @RequestParam(name = "from", required = false, defaultValue = "0") Integer from,
-                                        @RequestParam(name = "size", required = false, defaultValue = "10") Integer size) {
+                                        @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                        @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("запрос на получение событий для пользователей {}, категорий {}, стадии {}", users, categoriesId, states);
         return eventService.getEventsWithParamsByAdmin(users, states, categoriesId, rangeStart, rangeEnd, from, size);
     }

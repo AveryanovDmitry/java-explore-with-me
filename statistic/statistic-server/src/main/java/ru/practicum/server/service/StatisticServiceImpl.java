@@ -10,6 +10,7 @@ import ru.practicum.server.repository.StatisticRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +25,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public List<ViewStatistic> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+    public List<ViewStatistic> getStats(LocalDateTime start, LocalDateTime end, Set<String> uris, Boolean unique) {
         if (start.isAfter(end)) {
             throw new BadRequestException("Date start must be before date end");
         }

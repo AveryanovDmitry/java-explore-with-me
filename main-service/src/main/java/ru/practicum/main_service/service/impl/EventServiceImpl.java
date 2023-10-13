@@ -9,7 +9,10 @@ import ru.practicum.client.StatisticClient;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatistic;
 import ru.practicum.main_service.dto.eventDto.*;
+import ru.practicum.main_service.dto.eventDto.updateEventDto.UpdateEventAdminDto;
+import ru.practicum.main_service.dto.eventDto.updateEventDto.UpdateEventUserDto;
 import ru.practicum.main_service.exeptions.ConflictParametersException;
+import ru.practicum.main_service.mapper.LocationMapper;
 import ru.practicum.main_service.model.event.StateActionForUser;
 import ru.practicum.main_service.exeptions.BadParametersException;
 import ru.practicum.main_service.exeptions.NotFoundException;
@@ -32,11 +35,9 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ru.practicum.main_service.MainServiceApplication.DATE_TIME_FORMAT;
 import static ru.practicum.main_service.MainServiceApplication.DATE_TIME_FORMATTER;
 
 
@@ -50,6 +51,8 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final EntityManager entityManager;
     private final StatisticClient statisticClient;
+
+    private final LocationMapper locationMapper;
 
     @Override
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
@@ -116,7 +119,7 @@ public class EventServiceImpl implements EventService {
             event.setDescription(updateEvent.getDescription());
         }
         if (updateEvent.getLocation() != null) {
-            event.setLocation(updateEvent.getLocation());
+            event.setLocation(locationMapper.toLocation(updateEvent.getLocation()));
         }
         if (updateEvent.getPaid() != null) {
             event.setPaid(updateEvent.getPaid());
@@ -200,25 +203,20 @@ public class EventServiceImpl implements EventService {
                 .setMaxResults(size)
                 .getResultList();
 
-        if (onlyAvailable) {
+        if (Boolean.TRUE.equals(onlyAvailable)) {
             events = events.stream()
                     .filter((event -> event.getConfirmedRequests() < (long) event.getParticipantLimit()))
                     .collect(Collectors.toList());
         }
 
-        if (sort != null) {
-            if (sort.equals("EVENT_DATE")) {
-                events = events.stream().sorted(Comparator.comparing(EventEntity::getEventDate)).collect(Collectors.toList());
-            } else {
-                events = events.stream().sorted(Comparator.comparing(EventEntity::getViews)).collect(Collectors.toList());
-            }
+        if (sort != null && sort.equals("EVENT_DATE")) {
+            events = events.stream().sorted(Comparator.comparing(EventEntity::getEventDate)).collect(Collectors.toList());
         }
 
         if (events.size() == 0) {
             return new ArrayList<>();
         }
 
-        setView(events);
         sendStat(events, request);
         return eventMapper.toEventShortDtoList(events);
     }
@@ -229,10 +227,23 @@ public class EventServiceImpl implements EventService {
         EventEntity event = eventRepository.findByIdAndPublishedOnIsNotNull(id)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Can't find event with id = %s event doesn't exist", id)));
-        event.setViews(event.getViews() + 1);
-        setView(event);
         sendStat(event, request);
-        return eventMapper.fromEntityToEventFullDto(event);
+        EventFullDto eventFullDto = eventMapper.fromEntityToEventFullDto(event);
+        eventFullDto.setViews(getViewsByEvent(event));
+
+        return eventFullDto;
+    }
+
+    private long getViewsByEvent(EventEntity event) {
+        String startTime = event.getCreatedOn().format(DATE_TIME_FORMATTER);
+        String endTime = LocalDateTime.now().format(DATE_TIME_FORMATTER);
+        List<String> uris = List.of("/events/" + event.getId());
+        List<ViewStatistic> stats = statisticClient.getStats(startTime, endTime, uris, false);
+        if (stats.size() == 1) {
+            return stats.get(0).getHits() + 1;
+        } else {
+            return 1L;
+        }
     }
 
     @Override
@@ -254,7 +265,7 @@ public class EventServiceImpl implements EventService {
             event.setDescription(updateEventAdminDto.getDescription());
         }
         if (updateEventAdminDto.getLocation() != null) {
-            event.setLocation(updateEventAdminDto.getLocation());
+            event.setLocation(locationMapper.toLocation(updateEventAdminDto.getLocation()));
         }
         if (updateEventAdminDto.getPaid() != null) {
             event.setPaid(updateEventAdminDto.getPaid());
@@ -338,8 +349,6 @@ public class EventServiceImpl implements EventService {
         if (events.isEmpty()) {
             return new ArrayList<>();
         }
-
-        setView(events);
         return events.stream().map(eventMapper::fromEntityToEventFullDto).collect(Collectors.toList());
     }
 
@@ -403,42 +412,6 @@ public class EventServiceImpl implements EventService {
             requestDto.setApp(nameService);
             requestDto.setIp(remoteAddr);
             statisticClient.postStats(requestDto);
-        }
-    }
-
-    public void setView(List<EventEntity> events) {
-        LocalDateTime start = events.get(0).getCreatedOn();
-        List<String> uris = new ArrayList<>();
-        Map<String, EventEntity> eventsUri = new HashMap<>();
-        String uri = "";
-
-        for (EventEntity event : events) {
-            if (start.isBefore(event.getCreatedOn())) {
-                start = event.getCreatedOn();
-            }
-            uri = "/events/" + event.getId();
-            uris.add(uri);
-            eventsUri.put(uri, event);
-            event.setViews(0L);
-        }
-
-        String startTime = start.format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));
-        String endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));
-
-        List<ViewStatistic> stats = statisticClient.getStats(startTime, endTime, uris, false);
-        stats.forEach((stat) -> eventsUri.get(stat.getUri()).setViews(stat.getHits()));
-    }
-
-    public void setView(EventEntity event) {
-        String startTime = event.getCreatedOn().format(DATE_TIME_FORMATTER);
-        String endTime = LocalDateTime.now().format(DATE_TIME_FORMATTER);
-        List<String> uris = List.of("/events/" + event.getId());
-
-        List<ViewStatistic> stats = statisticClient.getStats(startTime, endTime, uris, false);
-        if (stats.size() == 1) {
-            event.setViews(stats.get(0).getHits() + 1);
-        } else {
-            event.setViews(1L);
         }
     }
 }

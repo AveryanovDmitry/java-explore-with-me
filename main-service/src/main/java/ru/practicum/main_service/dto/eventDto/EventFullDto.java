@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.main_service.dto.categoryDto.CategoryDto;
+import ru.practicum.main_service.dto.location.LocationDto;
 import ru.practicum.main_service.dto.user.UserDto;
-import ru.practicum.main_service.model.Location;
 import ru.practicum.main_service.model.event.EventState;
 
 import java.time.LocalDateTime;
@@ -29,7 +29,7 @@ public class EventFullDto {
     private LocalDateTime eventDate;
     private Long id;
     private UserDto initiator;
-    private Location location;
+    private LocationDto location;
     private Boolean paid;
     private Long participantLimit;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_FORMAT)
