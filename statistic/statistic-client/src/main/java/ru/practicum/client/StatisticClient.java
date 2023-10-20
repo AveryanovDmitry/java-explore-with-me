@@ -24,7 +24,7 @@ public class StatisticClient {
     private final String serverUrl;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public StatisticClient(@Value("${stats-server.url}") String serverUrl,
                            RestTemplate restTemplate, ObjectMapper objectMapper) {
@@ -44,8 +44,8 @@ public class StatisticClient {
     public List<ViewStatistic> getStats(LocalDateTime start, LocalDateTime end, Set<String> uris, Boolean unique) {
 
         Map<String, Object> parameters = new HashMap<>(Map.of(
-                "start", start.format(DATE_TIME_FORMATTER),
-                "end", end.format(DATE_TIME_FORMATTER),
+                "start", start.format(dateTimeFormatter),
+                "end", end.format(dateTimeFormatter),
                 "unique", unique));
 
         if (uris != null && !uris.isEmpty()) {
