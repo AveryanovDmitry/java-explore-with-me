@@ -1,10 +1,7 @@
 package ru.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -15,6 +12,8 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@ToString
 public class EndpointHitDto {
     @NotBlank(message = "field app can't be null or empty")
     @Size(max = 255)

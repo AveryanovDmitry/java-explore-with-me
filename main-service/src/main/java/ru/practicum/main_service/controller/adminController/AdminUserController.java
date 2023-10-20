@@ -26,8 +26,8 @@ public class AdminUserController {
 
     @GetMapping
     public List<UserDto> getUsers(@RequestParam(required = false) List<Long> ids,
-                            @RequestParam(defaultValue = "0") Integer from,
-                            @RequestParam(defaultValue = "10") Integer size) {
+                                  @RequestParam(defaultValue = "0") Integer from,
+                                  @RequestParam(defaultValue = "10") Integer size) {
         log.info("Обрабатываю запрос на получение списка юзеров");
         return userService.getUsers(ids, from, size);
     }

@@ -5,6 +5,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@ToString
 @Setter
 public class ViewStatistic {
     private String app;

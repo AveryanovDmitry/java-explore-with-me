@@ -1,6 +1,7 @@
 package ru.practicum.main_service.controller.publicController;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main_service.dto.eventDto.EventFullDto;
 import ru.practicum.main_service.dto.eventDto.EventShortDto;
@@ -12,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/events")
 @RequiredArgsConstructor
+@Slf4j
 public class PublicEventController {
     private final EventService eventService;
 
@@ -31,6 +33,7 @@ public class PublicEventController {
 
     @GetMapping("/{id}")
     public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
+        log.info("Получен запрос на получение события по id {}", id);
         return eventService.getEvent(id, request);
     }
 }

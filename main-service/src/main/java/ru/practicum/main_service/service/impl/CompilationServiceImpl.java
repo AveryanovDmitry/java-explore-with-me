@@ -13,7 +13,6 @@ import ru.practicum.main_service.model.event.EventEntity;
 import ru.practicum.main_service.repository.CompilationRepository;
 import ru.practicum.main_service.repository.EventRepository;
 import ru.practicum.main_service.service.CompilationService;
-import ru.practicum.main_service.service.EventService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -30,7 +29,6 @@ import java.util.Set;
 @Slf4j
 public class CompilationServiceImpl implements CompilationService {
     private final EventRepository eventRepository;
-    private final EventService eventService;
     private final EntityManager entityManager;
     private final CompilationRepository compilationRepository;
     private final CompilationMapper mapper;
@@ -38,26 +36,20 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
+        Compilation compilation = new Compilation();
         if (newCompilationDto.getPinned() == null) {
             newCompilationDto.setPinned(false);
         }
+        compilation.setPinned(newCompilationDto.getPinned());
+        compilation.setTitle(newCompilationDto.getTitle());
+        Compilation savedCompilation = compilationRepository.save(compilation);
+
         if (newCompilationDto.getEvents() != null) {
             List<EventEntity> events = eventRepository.findAllByIdIn(newCompilationDto.getEvents());
-            Compilation compilation = new Compilation();
             compilation.setEvents(new HashSet<>(events));
-            compilation.setPinned(newCompilationDto.getPinned());
-            compilation.setTitle(newCompilationDto.getTitle());
-            Compilation savedCompilation = compilationRepository.save(compilation);
-            log.debug("Compilation is created");
-            return mapper.mapToCompilationDto(savedCompilation);
-        } else {
-            Compilation compilation = new Compilation();
-            compilation.setPinned(newCompilationDto.getPinned());
-            compilation.setTitle(newCompilationDto.getTitle());
-            Compilation savedCompilation = compilationRepository.save(compilation);
-            log.debug("Compilation is created");
-            return mapper.mapToCompilationDto(savedCompilation);
         }
+        log.debug("Compilation is created");
+        return mapper.mapToCompilationDto(savedCompilation);
     }
 
     public CompilationDto getCompilation(Long compId) {
@@ -107,7 +99,7 @@ public class CompilationServiceImpl implements CompilationService {
         if (updateCompilationRequest.getPinned() != null) {
             oldCompilation.setPinned(updateCompilationRequest.getPinned());
         }
-        if (updateCompilationRequest.getTitle() != null) {
+        if (updateCompilationRequest.getTitle() != null && !updateCompilationRequest.getTitle().isBlank()) {
             oldCompilation.setTitle(updateCompilationRequest.getTitle());
         }
         Compilation updatedCompilation = compilationRepository.save(oldCompilation);

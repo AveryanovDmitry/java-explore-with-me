@@ -21,7 +21,7 @@ import static ru.practicum.main_service.MainServiceApplication.DATE_TIME_FORMAT;
 public class EventFullDto {
     private String annotation;
     private CategoryDto category;
-    private Integer confirmedRequests;
+    private Long confirmedRequests;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_FORMAT)
     private String createdOn;
     private String description;

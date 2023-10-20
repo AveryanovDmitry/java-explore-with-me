@@ -19,14 +19,16 @@ import ru.practicum.main_service.repository.UserRepository;
 import ru.practicum.main_service.service.RequestService;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class RequestServiceImpl implements RequestService {
-
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
     private final RequestMapper requestMapper;
@@ -105,21 +107,18 @@ public class RequestServiceImpl implements RequestService {
             throw new ConflictParametersException("request already confirmed");
         }
 
-        if (event.getConfirmedRequests() + requestsForUpdate.size() > event.getParticipantLimit()
+        Long confirmedRequest = getConfirmedRequests(Collections.singleton(event.getId()))
+                .getOrDefault(event.getId(), 0L);
+        if (confirmedRequest + requestsForUpdate.size() > event.getParticipantLimit()
                 && requestStatusUpdateDto.getStatus().equals(RequestStatus.CONFIRMED)) {
             throw new ConflictParametersException("exceeding the limit of participants");
         }
 
-        for (Request x : requestsForUpdate) {
-            x.setStatus(RequestStatus.valueOf(requestStatusUpdateDto.getStatus().toString()));
+        for (Request request : requestsForUpdate) {
+            request.setStatus(RequestStatus.valueOf(requestStatusUpdateDto.getStatus().toString()));
         }
 
         requestRepository.saveAll(requestsForUpdate);
-
-        if (requestStatusUpdateDto.getStatus().equals(RequestStatus.CONFIRMED)) {
-            event.setConfirmedRequests(event.getConfirmedRequests() + requestsForUpdate.size());
-        }
-
         eventRepository.save(event);
 
         if (requestStatusUpdateDto.getStatus().equals(RequestStatus.CONFIRMED)) {
@@ -131,5 +130,15 @@ public class RequestServiceImpl implements RequestService {
         }
 
         return result;
+    }
+
+    public Map<Long, Long> getConfirmedRequests(Collection<Long> ids) {
+        List<Request> confirmedRequests = requestRepository.findAllByStatusAndEventIn(RequestStatus.CONFIRMED, ids);
+
+        return confirmedRequests.stream()
+                .collect(Collectors.groupingBy(Request::getEvent))
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, requestList -> (long) requestList.getValue().size()));
     }
 }

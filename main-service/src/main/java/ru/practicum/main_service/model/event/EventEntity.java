@@ -22,12 +22,9 @@ public class EventEntity {
     @OneToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private CategoryEntity category;
-
-    private int confirmedRequests;
     @Column(name = "created_On")
     private LocalDateTime createdOn = LocalDateTime.now();
     private String description;
-
     private LocalDateTime eventDate;
     @OneToOne
     @JoinColumn(name = "initiator_id", referencedColumnName = "id")

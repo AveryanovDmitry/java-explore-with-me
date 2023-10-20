@@ -15,43 +15,46 @@ import ru.practicum.client.exceptions.StatsException;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatistic;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Component
 public class StatisticClient {
     private final String serverUrl;
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public StatisticClient(@Value("${stats-server.url}") String serverUrl,  RestTemplate restTemplate) {
+    public StatisticClient(@Value("${stats-server.url}") String serverUrl,
+                           RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.serverUrl = serverUrl;
         this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
     }
 
-    public void postStats(EndpointHitDto endpointHitDto) {
+    public ResponseEntity<EndpointHitDto> postStats(EndpointHitDto endpointHitDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<EndpointHitDto> requestEntity = new HttpEntity<>(endpointHitDto, headers);
-        restTemplate.exchange(serverUrl + "/hit", HttpMethod.POST, requestEntity, EndpointHitDto.class);
+        return restTemplate.exchange(serverUrl + "/hit", HttpMethod.POST, requestEntity, EndpointHitDto.class);
     }
 
-    public List<ViewStatistic> getStats(String start, String end, List<String> uris, Boolean unique) {
+    public List<ViewStatistic> getStats(LocalDateTime start, LocalDateTime end, Set<String> uris, Boolean unique) {
 
-        Map<String, Object> parameters = new HashMap<>();
+        Map<String, Object> parameters = new HashMap<>(Map.of(
+                "start", start.format(DATE_TIME_FORMATTER),
+                "end", end.format(DATE_TIME_FORMATTER),
+                "unique", unique));
 
-        parameters.put("start", start);
-        parameters.put("end", end);
-        parameters.put("uris", uris);
-        parameters.put("unique", unique);
+        if (uris != null && !uris.isEmpty()) {
+            parameters.put("uris", String.join(",", uris));
+        }
 
         ResponseEntity<String> response = restTemplate.getForEntity(
                 serverUrl + "/stats?start={start}&end={end}&uris={uris}&unique={unique}",
                 String.class, parameters);
-
-        ObjectMapper objectMapper = new ObjectMapper();
 
         try {
             return Arrays.asList(objectMapper.readValue(response.getBody(), ViewStatistic[].class));

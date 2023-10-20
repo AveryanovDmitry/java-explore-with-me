@@ -54,7 +54,7 @@ public class PrivateEventController {
                                           @PathVariable Long eventId,
                                           @Valid @RequestBody UpdateEventUserDto updateEventUserDto) {
         log.info("Получил запрос на обновления события текущего пользователя по id события");
-        return eventService.updateEventByCurrentUserIdAndEventId(userId, eventId, updateEventUserDto);
+        return eventService.updateEvent(userId, eventId, updateEventUserDto);
     }
 
     @GetMapping("/{eventId}/requests")
