@@ -16,7 +16,9 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
             "where r.event = :eventId and e.initiator.id = :userId")
     List<Request> findAllByEventWithInitiator(@Param(value = "userId") Long userId,
                                               @Param("eventId") Long eventId);
+
     List<Request> findAllByStatusAndEventIn(RequestStatus status, Collection<Long> ids);
+
     Boolean existsByRequesterAndEvent(Long userId, Long eventId);
 
     List<Request> findAllByRequester(Long userId);
