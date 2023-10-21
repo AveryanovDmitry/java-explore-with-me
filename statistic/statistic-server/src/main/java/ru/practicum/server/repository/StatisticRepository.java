@@ -8,6 +8,7 @@ import ru.practicum.server.model.ModelViewHit;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface StatisticRepository extends JpaRepository<ModelHit, Long> {
@@ -24,6 +25,6 @@ public interface StatisticRepository extends JpaRepository<ModelHit, Long> {
             "ORDER BY 3 desc")
     List<ModelViewHit> getStatistics(LocalDateTime start,
                                      LocalDateTime end,
-                                     List<String> uris,
+                                     Set<String> uris,
                                      Boolean unique);
 }
