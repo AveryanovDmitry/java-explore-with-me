@@ -19,7 +19,7 @@ public class EventEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String annotation;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private CategoryEntity category;
     @Column(name = "created_On")

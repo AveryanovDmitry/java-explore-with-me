@@ -30,21 +30,16 @@ import ru.practicum.main_service.model.event.StateActionForAdmin;
 import ru.practicum.main_service.repository.CategoryRepository;
 import ru.practicum.main_service.repository.EventRepository;
 import ru.practicum.main_service.repository.UserRepository;
+import ru.practicum.main_service.repository.dao.event.EventDao;
 import ru.practicum.main_service.service.EventService;
 import ru.practicum.main_service.service.RequestService;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.practicum.main_service.MainServiceApplication.DATE_TIME_FORMATTER;
-
 
 @Service
 @RequiredArgsConstructor
@@ -54,10 +49,10 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
-    private final EntityManager entityManager;
     private final StatisticClient statisticClient;
     private final LocationMapper locationMapper;
     private final RequestService requestService;
+    private final EventDao eventDao;
 
     @Value("${app.name}")
     private String appName;
@@ -201,51 +196,8 @@ public class EventServiceImpl implements EventService {
         }
         checkDateTime(start, end);
 
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<EventEntity> query = builder.createQuery(EventEntity.class);
-
-        Root<EventEntity> root = query.from(EventEntity.class);
-        Predicate criteria = builder.conjunction();
-
-        if (text != null) {
-            Predicate annotationContain = builder.like(builder.lower(root.get("annotation")),
-                    "%" + text.toLowerCase() + "%");
-            Predicate descriptionContain = builder.like(builder.lower(root.get("description")),
-                    "%" + text.toLowerCase() + "%");
-            Predicate containText = builder.or(annotationContain, descriptionContain);
-
-            criteria = builder.and(criteria, containText);
-        }
-
-        if (categories != null && categories.size() > 0) {
-            Predicate containStates = root.get("category").in(categories);
-            criteria = builder.and(criteria, containStates);
-        }
-
-        if (paid != null) {
-            Predicate isPaid;
-            if (paid) {
-                isPaid = builder.isTrue(root.get("paid"));
-            } else {
-                isPaid = builder.isFalse(root.get("paid"));
-            }
-            criteria = builder.and(criteria, isPaid);
-        }
-
-        if (rangeStart != null) {
-            Predicate greaterTime = builder.greaterThanOrEqualTo(root.get("eventDate").as(LocalDateTime.class), start);
-            criteria = builder.and(criteria, greaterTime);
-        }
-        if (rangeEnd != null) {
-            Predicate lessTime = builder.lessThanOrEqualTo(root.get("eventDate").as(LocalDateTime.class), end);
-            criteria = builder.and(criteria, lessTime);
-        }
-
-        query.select(root).where(criteria).orderBy(builder.asc(root.get("eventDate")));
-        List<EventEntity> events = entityManager.createQuery(query)
-                .setFirstResult(from)
-                .setMaxResults(size)
-                .getResultList();
+        List<EventEntity> events = eventDao.getEvents(text, categories, paid, rangeStart,
+                rangeEnd, from, size, start, end);
 
         if (Boolean.TRUE.equals(onlyAvailable)) {
             events = events.stream()
@@ -286,38 +238,8 @@ public class EventServiceImpl implements EventService {
         LocalDateTime start = rangeStart != null ? LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER) : null;
         LocalDateTime end = rangeEnd != null ? LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER) : null;
 
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<EventEntity> query = builder.createQuery(EventEntity.class);
-
-        Root<EventEntity> root = query.from(EventEntity.class);
-        Predicate criteria = builder.conjunction();
-
-        if (categoriesId != null && !categoriesId.isEmpty()) {
-            Predicate containCategories = root.get("category").in(categoriesId);
-            criteria = builder.and(criteria, containCategories);
-        }
-        if (users != null && !users.isEmpty()) {
-            Predicate containUsers = root.get("initiator").in(users);
-            criteria = builder.and(criteria, containUsers);
-        }
-        if (states != null && !states.isEmpty()) {
-            Predicate containStates = root.get("state").in(states);
-            criteria = builder.and(criteria, containStates);
-        }
-        if (rangeStart != null) {
-            Predicate greaterTime = builder.greaterThanOrEqualTo(root.get("eventDate").as(LocalDateTime.class), start);
-            criteria = builder.and(criteria, greaterTime);
-        }
-        if (rangeEnd != null) {
-            Predicate lessTime = builder.lessThanOrEqualTo(root.get("eventDate").as(LocalDateTime.class), end);
-            criteria = builder.and(criteria, lessTime);
-        }
-
-        query.select(root).where(criteria);
-        List<EventEntity> events = entityManager.createQuery(query)
-                .setFirstResult(from)
-                .setMaxResults(size)
-                .getResultList();
+        List<EventEntity> events = eventDao.getEventsByUsers(users, states, categoriesId, rangeStart, rangeEnd,
+                from, size, start, end);
 
         if (events.isEmpty()) {
             return new ArrayList<>();

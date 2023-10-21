@@ -12,13 +12,9 @@ import ru.practicum.main_service.model.Compilation;
 import ru.practicum.main_service.model.event.EventEntity;
 import ru.practicum.main_service.repository.CompilationRepository;
 import ru.practicum.main_service.repository.EventRepository;
+import ru.practicum.main_service.repository.dao.compilation.CompilationDao;
 import ru.practicum.main_service.service.CompilationService;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
@@ -29,8 +25,8 @@ import java.util.Set;
 @Slf4j
 public class CompilationServiceImpl implements CompilationService {
     private final EventRepository eventRepository;
-    private final EntityManager entityManager;
     private final CompilationRepository compilationRepository;
+    private final CompilationDao compilationDao;
     private final CompilationMapper mapper;
 
     @Override
@@ -61,29 +57,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Compilation> query = builder.createQuery(Compilation.class);
-
-        Root<Compilation> root = query.from(Compilation.class);
-        Predicate criteria = builder.conjunction();
-
-        if (pinned != null) {
-            Predicate isPinned;
-            if (pinned) {
-                isPinned = builder.isTrue(root.get("pinned"));
-            } else {
-                isPinned = builder.isFalse(root.get("pinned"));
-            }
-            criteria = builder.and(criteria, isPinned);
-        }
-
-        query.select(root).where(criteria);
-        List<Compilation> compilations = entityManager.createQuery(query)
-                .setFirstResult(from)
-                .setMaxResults(size)
-                .getResultList();
-
-        return mapper.mapToListCompilationDto(compilations);
+        return mapper.mapToListCompilationDto(compilationDao.getCompilations(pinned, from, size));
     }
 
     @Transactional

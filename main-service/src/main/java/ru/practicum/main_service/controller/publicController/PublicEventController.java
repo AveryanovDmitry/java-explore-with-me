@@ -25,8 +25,8 @@ public class PublicEventController {
                                                          @RequestParam(name = "rangeEnd", required = false) String rangeEnd,
                                                          @RequestParam(name = "onlyAvailable", required = false) boolean onlyAvailable,
                                                          @RequestParam(name = "sort", required = false) String sort,
-                                                         @RequestParam(name = "from", required = false, defaultValue = "0") Integer from,
-                                                         @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
+                                                         @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                         @RequestParam(name = "size", defaultValue = "10") Integer size,
                                                          HttpServletRequest request) {
         return eventService.getEventsWithSort(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
     }
