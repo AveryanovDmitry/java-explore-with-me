@@ -9,8 +9,9 @@ import java.util.List;
 public interface EventDao {
 
     List<EventEntity> getEvents(String text, List<Long> categories, Boolean paid, String rangeStart,
-                                        String rangeEnd, Integer from, Integer size,
-                                        LocalDateTime start, LocalDateTime end);
+                                String rangeEnd, Integer from, Integer size,
+                                LocalDateTime start, LocalDateTime end);
+    
     List<EventEntity> getEventsByUsers(List<Long> users, List<EventState> states,
                                        List<Long> categoriesId, String rangeStart, String rangeEnd,
                                        Integer from, Integer size, LocalDateTime start, LocalDateTime end);

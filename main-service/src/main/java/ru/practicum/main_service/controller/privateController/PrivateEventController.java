@@ -3,7 +3,6 @@ package ru.practicum.main_service.controller.privateController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main_service.dto.eventDto.EventFullDto;
 import ru.practicum.main_service.dto.eventDto.EventShortDto;
