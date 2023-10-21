@@ -12,7 +12,6 @@ public interface EventDao {
                                 String rangeEnd, Integer from, Integer size,
                                 LocalDateTime start, LocalDateTime end);
 
-    
     List<EventEntity> getEventsByUsers(List<Long> users, List<EventState> states,
                                        List<Long> categoriesId, String rangeStart, String rangeEnd,
                                        Integer from, Integer size, LocalDateTime start, LocalDateTime end);
