@@ -7,9 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.main_service.dto.comment.CommentDto;
 import ru.practicum.main_service.dto.comment.NewCommentDto;
+import ru.practicum.main_service.exeptions.ConflictParametersException;
 import ru.practicum.main_service.exeptions.NotFoundException;
 import ru.practicum.main_service.mapper.CommentMapper;
-import ru.practicum.main_service.model.Comment;
+import ru.practicum.main_service.model.comment.Comment;
 import ru.practicum.main_service.model.UserEntity;
 import ru.practicum.main_service.model.event.EventEntity;
 import ru.practicum.main_service.repository.CommentsRepository;
@@ -39,11 +40,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Can't create comment, event with id=%s doesn't exist", eventId)));
 
-        Comment comment = new Comment();
-        comment.setAuthor(user);
-        comment.setEvent(event);
-        comment.setCreated(LocalDateTime.now());
-        comment.setText(newCommentDto.getText());
+        Comment comment = commentMapper.createCommentForSave(user, event, LocalDateTime.now(), newCommentDto.getText());
         return commentMapper.toCommentDto(commentsRepository.save(comment));
     }
 
@@ -69,7 +66,11 @@ public class CommentServiceImpl implements CommentService {
         if (!oldComment.getAuthor().getId().equals(userId)) {
             throw new NotFoundException("Can't delete comment, if his owner another user");
         }
+        if (oldComment.getCreated().plusHours(1).isBefore(LocalDateTime.now())) {
+            throw new ConflictParametersException("Can't update comment, the time for a possible update has expired");
+        }
         oldComment.setText(newCommentDto.getText());
+        oldComment.setUpdateTime(LocalDateTime.now());
         Comment savedComment = commentsRepository.save(oldComment);
         log.debug("Comment with ID = {} was update", commentId);
         return commentMapper.toCommentDto(savedComment);

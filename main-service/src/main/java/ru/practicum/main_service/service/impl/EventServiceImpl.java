@@ -1,6 +1,6 @@
 package ru.practicum.main_service.service.impl;
 
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +28,7 @@ import ru.practicum.main_service.model.event.EventEntity;
 import ru.practicum.main_service.model.event.EventState;
 import ru.practicum.main_service.model.event.StateActionForAdmin;
 import ru.practicum.main_service.repository.CategoryRepository;
+import ru.practicum.main_service.repository.CommentsRepository;
 import ru.practicum.main_service.repository.EventRepository;
 import ru.practicum.main_service.repository.UserRepository;
 import ru.practicum.main_service.repository.dao.event.EventDao;
@@ -53,10 +54,10 @@ public class EventServiceImpl implements EventService {
     private final LocationMapper locationMapper;
     private final RequestService requestService;
     private final EventDao eventDao;
+    private final CommentsRepository commentsRepository;
 
     @Value("${app.name}")
     private String appName;
-
 
     @Override
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
@@ -297,12 +298,17 @@ public class EventServiceImpl implements EventService {
 
         List<EventShortDto> litShortEventDto = eventMapper.toEventShortDtoList((List<EventEntity>) events);
 
+        Map<Long, Long> countComments = new HashMap<>();
+        commentsRepository.getCountCommentsByIds(ids)
+                .forEach(comment -> countComments.put(comment.getId(), comment.getCount()));
+
         Map<Long, Long> eventsViews = getViews(ids);
         Map<Long, Long> confirmedRequests = requestService.getConfirmedRequests(ids);
 
         litShortEventDto.forEach(shortEvent -> {
             shortEvent.setViews(eventsViews.getOrDefault(shortEvent.getId(), 0L));
             shortEvent.setConfirmedRequests(confirmedRequests.getOrDefault(shortEvent.getId(), 0L));
+            shortEvent.setCountComments(countComments.getOrDefault(shortEvent.getId(), 0L));
         });
 
         return litShortEventDto;

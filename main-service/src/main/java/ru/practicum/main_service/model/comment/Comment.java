@@ -1,7 +1,8 @@
-package ru.practicum.main_service.model;
+package ru.practicum.main_service.model.comment;
 
 import lombok.Getter;
 import lombok.Setter;
+import ru.practicum.main_service.model.UserEntity;
 import ru.practicum.main_service.model.event.EventEntity;
 
 import javax.persistence.*;
@@ -24,4 +25,6 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "event_id")
     private EventEntity event;
+    @Column(name = "update_Time")
+    LocalDateTime updateTime;
 }
