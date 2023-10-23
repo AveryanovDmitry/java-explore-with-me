@@ -26,5 +26,5 @@ public class Comment {
     @JoinColumn(name = "event_id")
     private EventEntity event;
     @Column(name = "update_Time")
-    LocalDateTime updateTime;
+    private LocalDateTime updateTime;
 }
